@@ -7,15 +7,23 @@ pipeline {
 
     stages {
 
-        stage('Install Dependencies') {
+        stage('Setup Environment') {
             steps {
-                sh 'pip install --user -r requirements.txt'
+                sh '''
+                python -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '~/.local/bin/pytest'
+                sh '''
+                . venv/bin/activate
+                pytest
+                '''
             }
         }
     }
