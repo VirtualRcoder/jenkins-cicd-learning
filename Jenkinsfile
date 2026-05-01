@@ -16,16 +16,18 @@ pipeline {
                 pip install -r requirements.txt
                 '''
             }
-        }
 
+        }
         stage('Run Tests') {
             steps {
                 sh '''
                 . venv/bin/activate
+                export PYTHONPATH=$PWD
                 pytest
                 '''
             }
         }
     }
+
 }
 
