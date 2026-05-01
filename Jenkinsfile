@@ -3,21 +3,15 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/VirtualRcoder/jenkins-cicd-learning.git'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                sh 'python3 -m pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest'
+                sh 'python3 -m pytest'
             }
         }
     }
