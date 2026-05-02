@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "your-dockerhub-username/python-ci-app"
+        IMAGE_NAME = "virtualrcoder/python-ci-app"
     }
 
     stages {
