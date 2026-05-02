@@ -10,17 +10,17 @@ pipeline {
                 -v $PWD:/app \
                 -w /app \
                 python:3.10 \
-                sh -c "
-                ls -l &&
-                python -m venv venv &&
-                . venv/bin/activate &&
-                pip install -r requirements.txt &&
+                /bin/bash -c "
+                python3 -m venv venv &&
+                source venv/bin/activate &&
+                python3 -m pip install -r requirements.txt &&
                 export PYTHONPATH=/app &&
-                pytest
+                python3 -m pytest
                 "
                 '''
             }
         }
+
 
 
         stage('Build Docker Image') {
