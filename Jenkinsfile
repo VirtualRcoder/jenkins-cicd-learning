@@ -5,7 +5,17 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/VirtualRcoder/jenkins-cicd-learning.git'
+            }
+        }
+
+        stage('Debug') {
+            steps {
+                sh '''
+                echo "Workspace:"
+                pwd
+                ls -la
+                '''
             }
         }
 
