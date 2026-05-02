@@ -46,19 +46,53 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        // stage('Deploy') {
+        //     steps {
+        //         sh '''
+        //         docker stop python-ci-container || true
+        //         docker rm python-ci-container || true
+
+        //         docker run -d \
+        //           --name python-ci-container \
+        //           -p 5000:5000 \
+        //           $IMAGE_NAME:$IMAGE_TAG
+        //         '''
+        //     }
+        // }
+        stage('Zero Downtime Deploy') {
             steps {
                 sh '''
+                # Start new container on temp port
+                docker run -d \
+                --name python-ci-container-new \
+                -p 5001:5000 \
+                $IMAGE_NAME:$IMAGE_TAG
+
+                echo "Waiting for new container..."
+                sleep 5
+
+                # Optional: health check
+                curl -f http://localhost:5001 || exit 1
+
+                # Stop old container
                 docker stop python-ci-container || true
                 docker rm python-ci-container || true
 
+                # Rename new container to main
+                docker rename python-ci-container-new python-ci-container
+
+                # Restart with correct port
+                docker stop python-ci-container
+                docker rm python-ci-container
+
                 docker run -d \
-                  --name python-ci-container \
-                  -p 5000:5000 \
-                  $IMAGE_NAME:$IMAGE_TAG
+                --name python-ci-container \
+                -p 5000:5000 \
+                $IMAGE_NAME:$IMAGE_TAG
                 '''
             }
         }
+
     }
 
     post {
