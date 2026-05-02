@@ -6,7 +6,11 @@ pipeline {
         stage('Setup & Test') {
             steps {
                 sh '''
-                docker run --rm -v $PWD:/app -w /app python:3.10 sh -c "
+                docker run --rm \
+                -v $PWD:/app \
+                -w /app \
+                python:3.10 \
+                sh -c "
                 python -m venv venv &&
                 . venv/bin/activate &&
                 pip install -r requirements.txt &&
@@ -16,6 +20,7 @@ pipeline {
                 '''
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
