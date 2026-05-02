@@ -1,28 +1,18 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10'
-        }
-    }
+    agent any
 
     stages {
 
-        stage('Setup Environment') {
+        stage('Setup & Test') {
             steps {
                 sh '''
-                python -m venv venv
-                . venv/bin/activate
-                pip install -r requirements.txt
-                '''
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh '''
-                . venv/bin/activate
-                export PYTHONPATH=$PWD
+                docker run --rm -v $PWD:/app -w /app python:3.10 sh -c "
+                python -m venv venv &&
+                . venv/bin/activate &&
+                pip install -r requirements.txt &&
+                export PYTHONPATH=/app &&
                 pytest
+                "
                 '''
             }
         }
