@@ -72,7 +72,14 @@ pipeline {
                 sleep 5
 
                 # Optional: health check
-                curl -f http://localhost:5001 || exit 1
+                for i in {1..10}; do
+                    if curl -s http://localhost:5001; then
+                        echo "App is up!"
+                        break
+                    fi
+                    echo "Waiting..."
+                    sleep 2
+                done
 
                 # Stop old container
                 docker stop python-ci-container || true
