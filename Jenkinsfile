@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "virtualrcoder/python-ci-app"
+        IMAGE_NAME = "your-dockerhub-username/python-ci-app"
+        IMAGE_TAG = "v${BUILD_NUMBER}"
     }
 
     stages {
@@ -16,7 +17,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t $IMAGE_NAME:latest .
+                docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
                 '''
             }
         }
@@ -38,12 +40,13 @@ pipeline {
         stage('Push Image') {
             steps {
                 sh '''
+                docker push $IMAGE_NAME:$IMAGE_TAG
                 docker push $IMAGE_NAME:latest
                 '''
             }
         }
 
-        stage('Deploy (Run Container)') {
+        stage('Deploy') {
             steps {
                 sh '''
                 docker stop python-ci-container || true
@@ -52,7 +55,7 @@ pipeline {
                 docker run -d \
                   --name python-ci-container \
                   -p 5000:5000 \
-                  $IMAGE_NAME:latest
+                  $IMAGE_NAME:$IMAGE_TAG
                 '''
             }
         }
@@ -60,10 +63,7 @@ pipeline {
 
     post {
         success {
-            echo '🚀 Deployment successful!'
-        }
-        failure {
-            echo '❌ Deployment failed!'
+            echo "🚀 Deployed version: ${IMAGE_TAG}"
         }
     }
 }
