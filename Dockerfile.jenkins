@@ -1,0 +1,11 @@
+FROM jenkins/jenkins:lts
+
+USER root
+
+# Install Docker CLI inside Jenkins container
+RUN apt-get update && apt-get install -y docker.io
+
+# Optional: clean apt cache to reduce image size
+RUN apt-get clean
+
+USER jenkins

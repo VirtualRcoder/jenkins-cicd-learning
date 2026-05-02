@@ -29,19 +29,21 @@ pipeline {
 
         stage('Run Container (Tests)') {
             steps {
-                sh '''
-                docker run --rm python-ci-app
-                '''
+                timeout(time: 5, unit: 'MINUTES') {
+                    sh '''
+                    docker run --rm python-ci-app
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo '✅ Pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo '❌ Pipeline failed!'
         }
     }
 }

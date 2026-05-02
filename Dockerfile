@@ -1,7 +1,17 @@
-FROM jenkins/jenkins:lts
+FROM python:3.10
 
-USER root
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y docker.io
+COPY . .
 
-USER jenkins
+# Avoid buffering (important for Jenkins logs)
+ENV PYTHONUNBUFFERED=1
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Ensure Python can find your app
+ENV PYTHONPATH=/app
+
+# Run tests in verbose mode
+CMD ["pytest", "-v"]
