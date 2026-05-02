@@ -62,35 +62,30 @@ pipeline {
         stage('Zero Downtime Deploy') {
             steps {
                 sh '''
-                # Start new container on temp port
+                docker rm -f python-ci-container-new || true
+                
                 docker run -d \
                 --name python-ci-container-new \
                 -p 5001:5000 \
                 $IMAGE_NAME:$IMAGE_TAG
 
-                echo "Waiting for new container..."
-                sleep 5
+                echo "Waiting for container..."
 
-                # Optional: health check
                 for i in {1..10}; do
-                    if curl -s http://localhost:5001; then
-                        echo "App is up!"
-                        break
-                    fi
-                    echo "Waiting..."
-                    sleep 2
+                if curl -s http://localhost:5001; then
+                    echo "App is up!"
+                    break
+                fi
+                sleep 2
                 done
 
                 # Stop old container
                 docker stop python-ci-container || true
                 docker rm python-ci-container || true
 
-                # Rename new container to main
-                docker rename python-ci-container-new python-ci-container
-
-                # Restart with correct port
-                docker stop python-ci-container
-                docker rm python-ci-container
+                # Switch ports (IMPORTANT)
+                docker stop python-ci-container-new
+                docker rm python-ci-container-new
 
                 docker run -d \
                 --name python-ci-container \
@@ -99,6 +94,7 @@ pipeline {
                 '''
             }
         }
+
 
     }
 
