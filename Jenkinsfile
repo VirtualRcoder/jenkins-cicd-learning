@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "your-dockerhub-username/python-ci-app"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -9,41 +13,57 @@ pipeline {
             }
         }
 
-        stage('Verify Files') {
-            steps {
-                sh '''
-                echo "Workspace:"
-                pwd
-                ls -la
-                '''
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t python-ci-app .
+                docker build -t $IMAGE_NAME:latest .
                 '''
             }
         }
 
-        stage('Run Container (Tests)') {
+        stage('Login to Docker Hub') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
                     sh '''
-                    docker run --rm python-ci-app
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     '''
                 }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker push $IMAGE_NAME:latest
+                '''
+            }
+        }
+
+        stage('Deploy (Run Container)') {
+            steps {
+                sh '''
+                docker stop python-ci-container || true
+                docker rm python-ci-container || true
+
+                docker run -d \
+                  --name python-ci-container \
+                  -p 5000:5000 \
+                  $IMAGE_NAME:latest
+                '''
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline executed successfully!'
+            echo '🚀 Deployment successful!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo '❌ Deployment failed!'
         }
     }
 }
