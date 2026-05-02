@@ -12,12 +12,11 @@ pipeline {
                 sh '''
                 python -m venv venv
                 . venv/bin/activate
-                pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
             }
-
         }
+
         stage('Run Tests') {
             steps {
                 sh '''
@@ -27,7 +26,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t python-ci-app .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker run --rm python-ci-app'
+            }
+        }
     }
-
 }
-
