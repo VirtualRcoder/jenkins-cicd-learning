@@ -9,7 +9,7 @@ services:
       - "5000:5000"
 
   app-green:
-    image: virtualrcoder/python-ci-app:v1
+    image: virtualrcoder/python-ci-app:latest
     container_name: app-green
     ports:
       - "5001:5000"
