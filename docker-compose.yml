@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   app-blue:
-    image: virtualrcoder/python-ci-app:v1
+    image: virtualrcoder/python-ci-app:latest
     container_name: app-blue
     ports:
       - "5000:5000"
