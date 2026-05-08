@@ -115,8 +115,13 @@ pipeline {
                 docker rm -f $NEW || true
 
                 # Run new container
+                // docker run -d \
+                // --name $NEW \
+                // -p $PORT:5000 \
+                // $IMAGE_NAME:$IMAGE_TAG
                 docker run -d \
                 --name $NEW \
+                --network jenkins-cicd-learning_default \
                 -p $PORT:5000 \
                 $IMAGE_NAME:$IMAGE_TAG
 
